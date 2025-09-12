@@ -54,7 +54,9 @@ class _PickupState extends State<Pickup> {
       setState(() {
         isfetched = true;
         cars = carList;
-        Pickups = cars.where((car) => car.category == "Pickup").toList();
+        Pickups = cars
+            .where((car) => car.category == "Pickup" && car.isAvailable)
+            .toList();
         isloading = false;
       });
     }).catchError((error) {
@@ -95,7 +97,7 @@ class _PickupState extends State<Pickup> {
                         Center(
                           child: Container(
                             alignment: Alignment.topLeft,
-                            width: screenWidth * 0.6,
+                            width: screenWidth * 0.5,
                             margin: EdgeInsets.only(right: 10),
                             decoration: BoxDecoration(
                               color: Colors.white,
@@ -159,7 +161,7 @@ class _PickupState extends State<Pickup> {
                               "There is not An Available Car in this Category, We're Sorry!!"
                                   .tr(),
                               style: GoogleFonts.outfit(
-                                fontSize: 20,
+                                fontSize: screenWidth * 0.04,
                                 color: Colors.black,
                               ),
                             ),
@@ -201,7 +203,7 @@ class _PickupState extends State<Pickup> {
                                   ),
                                   SizedBox(height: verticalSpacing),
                                   Text(
-                                    Pickups[i].model,
+                                    Pickups[i].brand + " " + Pickups[i].model,
                                     style: GoogleFonts.poppins(
                                       fontSize: fontSizeSubtitle,
                                       fontWeight: FontWeight.w500,
@@ -209,15 +211,29 @@ class _PickupState extends State<Pickup> {
                                     ),
                                   ),
                                   SizedBox(height: verticalSpacing),
-                                  Text(
-                                    "\$${cars[i].price} / day",
-                                    style: GoogleFonts.outfit(
-                                      fontSize: fontSizeSubtitle,
-                                      color: Color.fromARGB(255, 36, 14, 144),
-                                    ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "\$${Pickups[i].price}/",
+                                        style: GoogleFonts.outfit(
+                                          fontSize: fontSizeSubtitle,
+                                          color:
+                                              Color.fromARGB(255, 36, 14, 144),
+                                        ),
+                                      ),
+                                      Text(
+                                        "day".tr(),
+                                        style: GoogleFonts.outfit(
+                                          fontSize: fontSizeSubtitle,
+                                          color:
+                                              Color.fromARGB(255, 36, 14, 144),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                   Container(
-                                    margin: EdgeInsets.only(left: 250),
+                                    margin: EdgeInsets.only(left: 200),
                                     decoration: BoxDecoration(
                                       color: Color.fromARGB(255, 36, 14, 144),
                                       borderRadius: BorderRadius.circular(10),
@@ -236,7 +252,10 @@ class _PickupState extends State<Pickup> {
                     ],
                   )
                 : isloading
-                    ? Center(child: CircularProgressIndicator())
+                    ? Container(
+                        margin: EdgeInsets.only(top: 100),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
                     : Center(child: Text("Error 404")),
           ],
         ),

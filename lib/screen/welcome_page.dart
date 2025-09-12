@@ -25,6 +25,7 @@ class Welcome extends StatelessWidget {
       },
     );
 
+    var children = [];
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -43,61 +44,63 @@ class Welcome extends StatelessWidget {
           width: screenWidth,
           height: screenHeight,
           color: Colors.white,
-          child: Column(
-            children: [
-              Container(child: Image.asset('assets/images/welcome.png')),
-              Text(
-                "Welcome to \n     Rent4U Company".tr(),
-                style: GoogleFonts.prostoOne(
-                  fontSize: screenHeight * 0.027,
-                  color: Colors.black,
-                ),
-              ), // Replace with your image path
-              SizedBox(height: screenHeight * 0.03),
-              Builder(
-                builder: (context) => MaterialButton(
-                  onPressed: () {
-                    if (FirebaseAuth.instance.currentUser != null) {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => MainNavigator(),
-                        ),
-                      );
-                    } else {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => LoginPage(),
-                        ),
-                      );
-                    }
-                  },
-                  color: const Color.fromARGB(255, 36, 14, 144),
-                  minWidth: screenWidth * 0.8,
-                  height: screenHeight * 0.07,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                      screenHeight * 0.04,
-                    ),
-                  ),
-                  child: Text(
-                    "Get Started".tr(),
-                    style: GoogleFonts.shipporiAntique(
-                      fontSize: screenWidth * 0.05,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+          child: Column(children: [
+            // Container(
+            //       margin: EdgeInsets.only(right: 70),
+            //       height: screenHeight * 0.7,
+            //       child: Image.asset('assets/images/welcome.png')),
+            Image.asset('assets/images/welcome.png'),
+            Text(
+              "Welcome to \n     Rent4U Company".tr(),
+              style: GoogleFonts.prostoOne(
+                fontSize: screenHeight * 0.027,
+                color: Colors.black,
               ),
-              SizedBox(height: screenHeight * 0.01),
-              Container(
+            ), // Replace with your image path
+            SizedBox(height: screenHeight * 0.03),
+            Builder(
+              builder: (context) => MaterialButton(
+                onPressed: () {
+                  if (FirebaseAuth.instance.currentUser != null) {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) => MainNavigator(),
+                      ),
+                    );
+                  } else {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => LoginPage(),
+                      ),
+                    );
+                  }
+                },
+                color: const Color.fromARGB(255, 36, 14, 144),
+                minWidth: screenWidth * 0.8,
+                height: screenHeight * 0.07,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    screenHeight * 0.04,
+                  ),
+                ),
                 child: Text(
-                  "Devloped by: Eng: Bashar Alkhawlani".tr(),
-                  style: GoogleFonts.outfit(fontSize: screenWidth * 0.045),
-                  textAlign: TextAlign.left,
+                  "Get Started".tr(),
+                  style: GoogleFonts.shipporiAntique(
+                    fontSize: screenWidth * 0.05,
+                    color: Colors.white,
+                  ),
                 ),
               ),
-            ],
-          ),
+            ),
+            SizedBox(height: screenHeight * 0.01),
+            Container(
+              child: Text(
+                "Devloped by: Eng: Bashar Alkhawlani".tr(),
+                style: GoogleFonts.outfit(fontSize: screenWidth * 0.045),
+                textAlign: TextAlign.left,
+              ),
+            ),
+          ]),
         ),
       ),
     );
@@ -147,7 +150,43 @@ class Welcome extends StatelessWidget {
                   Navigator.pop(context);
                   _changeLanguage(context, "ar", "YE");
                 },
-              )
+              ),
+              ListTile(
+                title: Text("Deutsch".tr()),
+                leading: CountryFlag.fromCountryCode(
+                  'DE',
+                  width: 30,
+                  height: 25,
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _changeLanguage(context, "de", "GER");
+                },
+              ),
+              ListTile(
+                title: Text("Spanish".tr()),
+                leading: CountryFlag.fromCountryCode(
+                  'ES',
+                  width: 30,
+                  height: 25,
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _changeLanguage(context, "es", "ES");
+                },
+              ),
+              ListTile(
+                title: Text("French".tr()),
+                leading: CountryFlag.fromCountryCode(
+                  'FR',
+                  width: 30,
+                  height: 25,
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _changeLanguage(context, "fr", "FR");
+                },
+              ),
             ],
           ),
         );

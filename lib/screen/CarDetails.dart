@@ -159,7 +159,7 @@ class _CardetailsState extends State<Cardetails> {
                 : Icon(
                     Icons.favorite_border,
                     color: Colors.white,
-                    size: 30,
+                    size: screenWidth * 0.07,
                   ),
             onPressed: () async {
               if (isfavorite) {
@@ -176,7 +176,7 @@ class _CardetailsState extends State<Cardetails> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 10),
+            SizedBox(height: screenWidth * 0.02),
             ClipRRect(
               child: Image.network(
                 widget.car[widget.index].image,
@@ -185,7 +185,7 @@ class _CardetailsState extends State<Cardetails> {
                 height: 200,
               ),
             ),
-            SizedBox(height: 15),
+            SizedBox(height: screenWidth * 0.02),
             Container(
               margin: EdgeInsets.only(left: 10, right: 15, bottom: 15),
               width: screenWidth,
@@ -213,9 +213,17 @@ class _CardetailsState extends State<Cardetails> {
                       Spacer(),
                       SizedBox(width: 40),
                       Text(
-                        "      \$${widget.car[widget.index].price} /day",
+                        "      \$${widget.car[widget.index].price} / ",
                         style: GoogleFonts.outfit(
-                          fontSize: fontSizeSubtitle,
+                          fontSize: fontSizeSubtitle - 1,
+                          color: Color.fromARGB(255, 36, 14, 144),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        "day".tr(),
+                        style: GoogleFonts.outfit(
+                          fontSize: fontSizeSubtitle - 1,
                           color: Color.fromARGB(255, 36, 14, 144),
                           fontWeight: FontWeight.bold,
                         ),
@@ -225,8 +233,11 @@ class _CardetailsState extends State<Cardetails> {
                   SizedBox(height: 7),
                   Row(
                     children: [
+                      SizedBox(
+                        width: 5,
+                      ),
                       Container(
-                        padding: EdgeInsets.all(10),
+                        padding: EdgeInsets.all(7),
                         decoration: BoxDecoration(
                           color: Colors.grey[200],
                           border: Border.all(
@@ -245,7 +256,7 @@ class _CardetailsState extends State<Cardetails> {
                             Text(
                               "${widget.car[widget.index].topSpeed} km/h",
                               style: GoogleFonts.outfit(
-                                fontSize: fontSizeSubtitle,
+                                fontSize: fontSizeSubtitle - 1,
                               ),
                             ),
                           ],
@@ -253,7 +264,7 @@ class _CardetailsState extends State<Cardetails> {
                       ),
                       SizedBox(width: 7),
                       Container(
-                        padding: EdgeInsets.all(10),
+                        padding: EdgeInsets.all(7),
                         decoration: BoxDecoration(
                           color: Colors.grey[200],
                           border: Border.all(
@@ -272,7 +283,7 @@ class _CardetailsState extends State<Cardetails> {
                             Text(
                               "${widget.car[widget.index].gearSystem}",
                               style: GoogleFonts.outfit(
-                                fontSize: fontSizeSubtitle,
+                                fontSize: fontSizeSubtitle - 1,
                               ),
                             ),
                           ],
@@ -280,7 +291,7 @@ class _CardetailsState extends State<Cardetails> {
                       ),
                       SizedBox(width: 7),
                       Container(
-                        padding: EdgeInsets.all(10),
+                        padding: EdgeInsets.all(7),
                         decoration: BoxDecoration(
                           color: Colors.grey[200],
                           border: Border.all(
@@ -299,7 +310,7 @@ class _CardetailsState extends State<Cardetails> {
                             Text(
                               "${widget.car[widget.index].fuel}",
                               style: GoogleFonts.outfit(
-                                fontSize: fontSizeSubtitle - 2,
+                                fontSize: fontSizeSubtitle - 3,
                               ),
                             ),
                           ],
@@ -311,24 +322,24 @@ class _CardetailsState extends State<Cardetails> {
                 ],
               ),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: screenWidth * 0.02),
             Container(
               margin: EdgeInsets.only(left: 15),
               child: Text(
                 "Specifications".tr(),
                 style: GoogleFonts.outfit(
-                  fontSize: fontSizeTitle - 2,
+                  fontSize: fontSizeTitle - 4,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
             SizedBox(height: 10),
             Container(
-              margin: EdgeInsets.only(left: 15),
+              margin: EdgeInsets.only(left: 5),
               child: Row(
                 children: [
                   Container(
-                    margin: EdgeInsets.only(left: 15),
+                    margin: EdgeInsets.only(left: 5),
                     padding: EdgeInsets.all(15),
                     decoration: BoxDecoration(
                       color: Colors.grey[200],
@@ -439,11 +450,12 @@ class _CardetailsState extends State<Cardetails> {
               child: Text(
                 "Features".tr(),
                 style: GoogleFonts.outfit(
-                  fontSize: fontSizeTitle - 2,
+                  fontSize: fontSizeTitle - 4,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
+            SizedBox(height: screenWidth * 0.02),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: List.generate(3, (colIndex) {
@@ -480,13 +492,13 @@ class _CardetailsState extends State<Cardetails> {
                   Text(
                     "Description".tr(),
                     style: GoogleFonts.outfit(
-                      fontSize: fontSizeTitle - 2,
+                      fontSize: fontSizeTitle - 4,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 7),
                   Text(
-                    "  ${widget.car[widget.index].description}",
+                    "${widget.car[widget.index].description}".tr(),
                     style: GoogleFonts.outfit(fontSize: fontSizeSubtitle - 2),
                   ),
                 ],
@@ -497,6 +509,7 @@ class _CardetailsState extends State<Cardetails> {
         ),
       ),
       bottomNavigationBar: Container(
+        height: screenWidth * 0.2,
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -509,13 +522,25 @@ class _CardetailsState extends State<Cardetails> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              "   \$${widget.car[widget.index].price}/day",
-              style: GoogleFonts.outfit(
-                fontSize: fontSizeSubtitle + 3,
-                fontWeight: FontWeight.bold,
-                color: Color.fromARGB(255, 36, 14, 144),
-              ),
+            Row(
+              children: [
+                Text(
+                  "   \$${widget.car[widget.index].price}/ ",
+                  style: GoogleFonts.outfit(
+                    fontSize: fontSizeSubtitle + 3,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 36, 14, 144),
+                  ),
+                ),
+                Text(
+                  "day".tr(),
+                  style: GoogleFonts.outfit(
+                    fontSize: fontSizeSubtitle + 3,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 36, 14, 144),
+                  ),
+                ),
+              ],
             ),
             ElevatedButton(
               onPressed: () {
@@ -540,7 +565,7 @@ class _CardetailsState extends State<Cardetails> {
               child: Text(
                 "Book Now".tr(),
                 style: GoogleFonts.outfit(
-                  fontSize: fontSizeSubtitle,
+                  fontSize: fontSizeSubtitle - 2,
                   color: Colors.white,
                 ),
               ),
@@ -557,6 +582,7 @@ Widget buildfeature(int index, List<Car> car, int carindex, context) {
 
   double fontSizeSubtitle = screenWidth * 0.04;
   return Container(
+    width: screenWidth * 0.35,
     padding: EdgeInsets.all(10),
     decoration: BoxDecoration(
       color: Colors.grey[200],
@@ -566,7 +592,7 @@ Widget buildfeature(int index, List<Car> car, int carindex, context) {
     margin: EdgeInsets.only(left: 20, bottom: 15),
     child: Text(
       "${car[index].features[carindex]}",
-      style: GoogleFonts.outfit(fontSize: fontSizeSubtitle - 1),
+      style: GoogleFonts.outfit(fontSize: fontSizeSubtitle - 2),
     ),
   );
 }

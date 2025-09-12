@@ -14,10 +14,9 @@ import 'package:rental_car_project/screen/Categories/SedanCar.dart';
 import 'package:rental_car_project/screen/Categories/SportCar.dart';
 import 'package:rental_car_project/screen/Categories/SuvCars.dart';
 import 'package:rental_car_project/screen/Categories/all_cars.dart';
-import 'package:rental_car_project/screen/booking.dart';
-import 'package:rental_car_project/screen/welcome_page.dart';
+
 import 'package:rental_car_project/utilities/car.dart';
-import 'package:rental_car_project/screen/booking.dart';
+
 import 'package:rental_car_project/screen/CarDetails.dart';
 
 import 'package:http/http.dart' as http;
@@ -150,7 +149,8 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    margin: EdgeInsets.only(left: 10, top: 70),
+                    margin: EdgeInsets.only(
+                        left: screenHeight * 0.01, top: screenHeight * 0.1),
                     child: Column(
                       children: [
                         Container(
@@ -196,7 +196,7 @@ class _HomePageState extends State<HomePage> {
                       SizedBox(width: 10),
                       Expanded(
                         child: SizedBox(
-                          height: 40,
+                          height: screenHeight * 0.05,
                           child: TextField(
                             onSubmitted: (value) {
                               setState(() {
@@ -242,7 +242,7 @@ class _HomePageState extends State<HomePage> {
                   if (searchvalue != "") ...[
                     Container(
                       alignment: Alignment.center,
-                      margin: EdgeInsets.only(top: 60),
+                      margin: EdgeInsets.only(top: verticalSpacing - 4),
                       child: Column(
                         children: [
                           if (filteredCars.length == 0) ...[
@@ -433,14 +433,14 @@ Widget buildCategories(
       Text(
         "Categories".tr(),
         style: GoogleFonts.outfit(
-          fontSize: fontSizeTitle,
+          fontSize: fontSizeTitle - 2,
           color: Colors.black,
           fontWeight: FontWeight.bold,
         ),
       ),
       SizedBox(height: verticalSpacing / 2),
       SizedBox(
-        height: 42,
+        height: screenHeight * 0.06,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: categories.length,

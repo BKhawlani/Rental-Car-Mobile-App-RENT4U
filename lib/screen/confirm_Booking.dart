@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,6 +9,7 @@ import 'package:rental_car_project/screen/home_page.dart';
 import 'package:rental_car_project/screen/thank.dart';
 import 'package:rental_car_project/utilities/car.dart';
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
+import 'package:http/http.dart' as http;
 
 class ConfirmBooking extends StatefulWidget {
   final Car? selectedCar;
@@ -34,6 +37,26 @@ class _ConfirmBookingState extends State<ConfirmBooking> {
   bool isDriverNeeded = false;
   final int driverFee = 50;
   bool isLoading = false;
+  Future<void> bookCar(String id) async {
+    final url = Uri.parse(
+        'https://680c930b2ea307e081d45573.mockapi.io/rent4u/api/cars/$id');
+
+    try {
+      final response = await http.patch(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'available': false}),
+      );
+
+      if (response.statusCode == 200) {
+        print(' Update successful: ${response.body}');
+      } else {
+        print(' Update Failed ${response.statusCode}');
+      }
+    } catch (e) {
+      print('  no connection : $e');
+    }
+  }
 
   Future<void> _addCarBooking() async {
     setState(() => isLoading = true);
@@ -64,6 +87,7 @@ class _ConfirmBookingState extends State<ConfirmBooking> {
         'totalprice': _calculateTotalPrice(),
         'timestamp': FieldValue.serverTimestamp(),
       });
+      await bookCar(widget.selectedCar!.id);
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -238,13 +262,13 @@ class _ConfirmBookingState extends State<ConfirmBooking> {
       children: [
         _buildDetailRow(
           size,
-          label: 'days'.tr(),
+          label: 'Days'.tr(),
           value: widget.days.toString(),
         ),
         SizedBox(height: size.height * 0.02),
         _buildDetailRow(
           size,
-          label: 'price'.tr(),
+          label: 'Price'.tr(),
           value: '${(widget.days * widget.selectedCar!.price)}\$',
         ),
         if (isDriverNeeded) ...[

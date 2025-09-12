@@ -13,6 +13,7 @@ class Car {
   final String category;
   final String year;
   final String id;
+  final bool isAvailable;
 
   Car({
     required this.brand,
@@ -29,6 +30,7 @@ class Car {
     required this.category,
     required this.year,
     required this.id,
+    required this.isAvailable,
   });
 
   Map<String, dynamic> toJson() {
@@ -47,6 +49,7 @@ class Car {
       'topSpeed': topSpeed,
       'image': image,
       'category': category,
+      'isAvailable': isAvailable, // Assuming all cars are available by default
       // أضف باقي الخصائص هنا
     };
   }
@@ -63,12 +66,16 @@ class Car {
       accelaritionBySec: json['accelaritionBySec'] ?? 'Unknown',
       features:
           json['features'] != null ? List<String>.from(json['features']) : [],
-      description: json['discription'] ?? 'No description',
+      description: json['discription'] != null
+          ? json['discription']
+          : json['description'],
       topSpeed: json['topSpeed'] ?? 0,
-      image: json['image'] ?? 'https://via.placeholder.com/150',
+      image: json['image'] ??
+          'https://img.freepik.com/premium-vector/no-photo-available-vector-icon-default-image-symbol-picture-coming-soon-web-site-mobile-app_87543-18055.jpg',
       category: json['Category'] ?? 'Unknown',
       year: json['year'] ?? 'Unknown',
       id: json['id'] ?? 'Unknown',
+      isAvailable: json['available'] ?? true, // Default to true if not provided
     );
   }
 }

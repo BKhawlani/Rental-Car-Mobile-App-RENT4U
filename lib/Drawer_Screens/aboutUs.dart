@@ -1,60 +1,41 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:video_player/video_player.dart';
+import 'package:better_player/better_player.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:path_provider/path_provider.dart';
 
 class Aboutus extends StatefulWidget {
-  bool fromsetting;
-  Aboutus({required this.fromsetting});
+  final bool fromsetting;
+  const Aboutus({required this.fromsetting, Key? key}) : super(key: key);
 
   @override
   State<Aboutus> createState() => _AboutusState();
 }
 
 class _AboutusState extends State<Aboutus> {
-  final asset = 'assets/videos/about_us.mp4';
-  late VideoPlayerController controller;
-  bool _showPlayPauseButton = false;
-
-  Timer? _playPauseTimer;
+  final String videoAsset = 'assets/videos/output_compatible.mp4';
+  late BetterPlayerController _betterPlayerController;
   bool _isVideoInitialized = false;
   bool _isVideoError = false;
-  String _videoErrorMsg = '';
-  final Completer<GoogleMapController> _mapController =
-      Completer<GoogleMapController>();
+  final Completer<GoogleMapController> _mapController = Completer();
 
-  // Actual coordinates for your location in Kastamonu, Turkey
   static const CameraPosition _kCompanyLocation = CameraPosition(
-    target: LatLng(41.3765, 33.7765), // Kastamonu coordinates
+    target: LatLng(41.3765, 33.7765),
     zoom: 14.4746,
   );
 
   final Marker _companyMarker = const Marker(
     markerId: MarkerId('company_location'),
-    position: LatLng(41.3765, 33.7765), // Kastamonu coordinates
+    position: LatLng(41.3765, 33.7765),
     infoWindow: InfoWindow(title: 'Rent4U Headquarters'),
   );
-
-  void _togglePlayPause() {
-    setState(() {
-      if (controller.value.isPlaying) {
-        controller.pause();
-      } else {
-        controller.play();
-      }
-      _showPlayPauseButton = true;
-      _playPauseTimer?.cancel();
-      _playPauseTimer = Timer(const Duration(seconds: 2), () {
-        if (mounted) {
-          setState(() => _showPlayPauseButton = false);
-        }
-      });
-    });
-  }
 
   @override
   void initState() {
@@ -62,37 +43,91 @@ class _AboutusState extends State<Aboutus> {
     _initializeVideo();
   }
 
-  Future<void> _initializeVideo() async {
-    try {
-      controller = VideoPlayerController.asset(asset)
-        ..setLooping(true)
-        ..addListener(_videoListener);
+  Future<String> loadAssetToFile(String assetPath) async {
+    final byteData = await rootBundle.load(assetPath);
+    final file = File('${(await getTemporaryDirectory()).path}/temp_video.mp4');
+    await file.writeAsBytes(byteData.buffer.asUint8List());
+    return file.path;
+  }
 
-      await controller.initialize();
-      if (mounted) {
-        setState(() {
-          _isVideoInitialized = true;
-        });
-        controller.play();
-      }
+  Future<void> _initializeVideo() async {
+    final filePath = await loadAssetToFile("assets/videos/about_us.mp4");
+
+    try {
+      final dataSource = BetterPlayerDataSource(
+        BetterPlayerDataSourceType.file,
+        filePath,
+      );
+
+      _betterPlayerController = BetterPlayerController(
+        BetterPlayerConfiguration(
+          aspectRatio: 16 / 9,
+          fit: BoxFit.cover,
+          autoPlay: true,
+          looping: true,
+          controlsConfiguration: const BetterPlayerControlsConfiguration(
+            enableSkips: false,
+            enableFullscreen: false,
+            enableMute: false,
+            enablePlaybackSpeed: false,
+            showControlsOnInitialize: false,
+          ),
+          errorBuilder: (context, errorMessage) {
+            return _buildVideoErrorWidget(errorMessage ?? "");
+          },
+        ),
+        betterPlayerDataSource: dataSource,
+      );
+
+      // Listen for player events
+      _betterPlayerController.addEventsListener((event) {
+        if (event.betterPlayerEventType == BetterPlayerEventType.exception) {
+          setState(() {
+            _isVideoError = true;
+          });
+        } else if (event.betterPlayerEventType ==
+            BetterPlayerEventType.initialized) {
+          setState(() {
+            _isVideoInitialized = true;
+          });
+        }
+      });
+
+      await _betterPlayerController.setupDataSource(dataSource);
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isVideoError = true;
-          _videoErrorMsg = 'Failed to load video: ${e.toString()}';
-        });
-      }
+      setState(() {
+        _isVideoError = true;
+      });
+      debugPrint('Video initialization error: $e');
     }
   }
 
-  void _videoListener() {
-    if (mounted) setState(() {});
+  Widget _buildVideoErrorWidget(String errorMessage) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(Icons.error_outline, size: 50, color: Colors.white),
+        const SizedBox(height: 10),
+        Text(
+          'Failed to load video'.tr(),
+          style: const TextStyle(color: Colors.white),
+        ),
+        const SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: _initializeVideo,
+          child: Text('Retry'.tr()),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue,
+            foregroundColor: Colors.white,
+          ),
+        ),
+      ],
+    );
   }
 
   @override
   void dispose() {
-    controller.removeListener(_videoListener);
-    controller.dispose();
+    _betterPlayerController.dispose();
     super.dispose();
   }
 
@@ -100,21 +135,18 @@ class _AboutusState extends State<Aboutus> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    double fontSizeTitle = screenWidth * 0.06;
-    double ButtonField = screenHeight * 0.06;
+    final fontSizeTitle = screenWidth * 0.06;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: widget.fromsetting
           ? AppBar(
               leading: IconButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                icon: Icon(Icons.arrow_back_ios_new),
+                onPressed: () => Navigator.of(context).pop(),
+                icon: const Icon(Icons.arrow_back_ios_new),
                 color: Colors.white,
               ),
-              backgroundColor: Color.fromARGB(255, 36, 14, 144),
+              backgroundColor: const Color.fromARGB(255, 36, 14, 144),
               title: Text(
                 "About Us".tr(),
                 style: GoogleFonts.outfit(
@@ -127,68 +159,30 @@ class _AboutusState extends State<Aboutus> {
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: screenHeight * 0.05),
+            if (widget.fromsetting) SizedBox(height: screenHeight * 0.03),
 
+            // Video Player Section
             Container(
-              height: 250,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.black,
-              ),
+              height: screenHeight * 0.4,
+              width: double.infinity,
+              // decoration: BoxDecoration(
+              //   borderRadius: BorderRadius.circular(8),
+              //   color: Colors.black,
+              // ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    if (_isVideoInitialized)
-                      VideoPlayer(controller)
-                    else if (_isVideoError)
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.error_outline,
-                            size: 50,
-                            color: Colors.white,
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            _videoErrorMsg,
-                            style: const TextStyle(color: Colors.white),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
+                child: _isVideoInitialized
+                    ? AspectRatio(
+                        aspectRatio: 16 / 9,
+                        child:
+                            BetterPlayer(controller: _betterPlayerController),
                       )
-                    else
-                      const Center(child: CircularProgressIndicator()),
-                    Positioned.fill(
-                      child: InkWell(
-                        onTap: _togglePlayPause,
-                        child: AnimatedOpacity(
-                          opacity: _showPlayPauseButton ? 1.0 : 0.0,
-                          duration: const Duration(milliseconds: 300),
-                          child: Container(
-                            color: Colors.black.withOpacity(0.3),
-                            child: Icon(
-                              controller.value.isPlaying
-                                  ? Icons.pause
-                                  : Icons.play_arrow,
-                              size: 50,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                    : _isVideoError
+                        ? _buildVideoErrorWidget('')
+                        : const Center(child: CircularProgressIndicator()),
               ),
             ),
-
-            const SizedBox(height: 24),
 
             // About Us Text
             Padding(
@@ -199,7 +193,7 @@ class _AboutusState extends State<Aboutus> {
                   Text(
                     "About App:".tr(),
                     style: GoogleFonts.outfit(
-                      fontSize: 18,
+                      fontSize: fontSizeTitle - 4,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -207,14 +201,16 @@ class _AboutusState extends State<Aboutus> {
                   Text(
                     "Rent4U is a simple and smart app that helps users rent cars quickly and easily. Whether you need a car for travel or daily use, Rent4U makes the process fast and smooth."
                         .tr(),
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyLarge?.copyWith(fontSize: 16, height: 1.6),
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          fontSize: 16,
+                          height: 1.6,
+                        ),
                     textAlign: TextAlign.start,
                   ),
                 ],
               ),
             ),
+
             const SizedBox(height: 24),
 
             // Contact Info
@@ -226,17 +222,31 @@ class _AboutusState extends State<Aboutus> {
                   Text(
                     "Contact Information:".tr(),
                     style: GoogleFonts.outfit(
-                      fontSize: 18,
+                      fontSize: fontSizeTitle - 4,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 12),
-                  _buildContactInfo(Icons.phone, "+90 531 945 34 71"),
-                  _buildContactInfo(Icons.email, "info@rent4u.com"),
-                  _buildContactInfo(Icons.location_on, "Turkey, Kastamonu"),
+                  _buildContactInfo(
+                    icon: Icons.phone,
+                    text: "+90 531 945 34 71",
+                    onTap: () => _launchUrl('tel:+905319453471'),
+                  ),
+                  _buildContactInfo(
+                    icon: Icons.email,
+                    text: "info@rent4u.com",
+                    onTap: () => _launchUrl('mailto:info@rent4u.com'),
+                  ),
+                  _buildContactInfo(
+                    icon: Icons.location_on,
+                    text: "Turkey, Kastamonu",
+                    onTap: () => _launchUrl(
+                        'https://maps.google.com/?q=41.3765,33.7765'),
+                  ),
                 ],
               ),
             ),
+
             const SizedBox(height: 24),
 
             // Map Section
@@ -248,83 +258,120 @@ class _AboutusState extends State<Aboutus> {
                   Text(
                     "Our Location:".tr(),
                     style: GoogleFonts.outfit(
-                      fontSize: 18,
+                      fontSize: fontSizeTitle - 4,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 12),
                   Container(
-                    height: 250,
+                    height: screenHeight * 0.3,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
                       color: Colors.grey[200],
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: Stack(
-                        children: [
-                          GoogleMap(
-                            mapType: MapType.normal,
-                            initialCameraPosition: _kCompanyLocation,
-                            markers: {_companyMarker},
-                            onMapCreated: (GoogleMapController controller) {
-                              _mapController.complete(controller);
-                            },
-                            gestureRecognizers: <Factory<
-                                OneSequenceGestureRecognizer>>{
-                              Factory<OneSequenceGestureRecognizer>(
-                                () => EagerGestureRecognizer(),
-                              ),
-                            },
-                            zoomControlsEnabled: true,
-                            zoomGesturesEnabled: true,
-                            scrollGesturesEnabled: true,
-                            tiltGesturesEnabled: true,
-                            rotateGesturesEnabled: true,
-                            myLocationEnabled: true,
-                            myLocationButtonEnabled: true,
+                      child: GoogleMap(
+                        mapType: MapType.normal,
+                        initialCameraPosition: _kCompanyLocation,
+                        markers: {_companyMarker},
+                        onMapCreated: (controller) =>
+                            _mapController.complete(controller),
+                        gestureRecognizers: {
+                          Factory<OneSequenceGestureRecognizer>(
+                            () => EagerGestureRecognizer(),
                           ),
-                          // يمكن إضافة عناصر واجهة مستخدم إضافية هنا
-                        ],
+                        },
+                        zoomControlsEnabled: false,
+                        zoomGesturesEnabled: true,
+                        scrollGesturesEnabled: true,
+                        tiltGesturesEnabled: true,
+                        rotateGesturesEnabled: true,
+                        myLocationEnabled: true,
                       ),
                     ),
                   ),
                 ],
               ),
             ),
+
             const SizedBox(height: 24),
 
-            Text(
-              "  About This Project:".tr(),
-              style: GoogleFonts.outfit(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text.rich(
-              TextSpan(
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(fontSize: 16, height: 1.6),
+            // About Project Section
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TextSpan(
-                    text:
-                        'This application was developed as a final project for the Mobile Programming course by student '
-                            .tr(),
+                  Text(
+                    "About This Project:".tr(),
+                    style: GoogleFonts.outfit(
+                      fontSize: fontSizeTitle - 4,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  TextSpan(
-                    text: 'Bashar Alkhawlani',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  const SizedBox(height: 8),
+                  Text.rich(
+                    TextSpan(
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontSize: 16,
+                            height: 1.6,
+                          ),
+                      children: [
+                        TextSpan(
+                          text:
+                              'This application was developed as a final project for the Mobile Programming course by student '
+                                  .tr(),
+                        ),
+                        if (Localizations.localeOf(context).languageCode !=
+                            'tr')
+                          TextSpan(
+                            text: 'Bashar Alkhawlani',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        if (Localizations.localeOf(context).languageCode !=
+                            'tr') ...[
+                          TextSpan(text: ' under the supervision of\n '.tr()),
+                          TextSpan(
+                            text: 'Dr. Öğr. Üyesi Atilla SUNCAK\n',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          TextSpan(text: '.'),
+                        ]
+                      ],
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  TextSpan(text: ' under the supervision of\n '.tr()),
-                  TextSpan(
-                    text: 'Dr. Öğr. Üyesi Atilla SUNCAK\n',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  TextSpan(text: '.'),
                 ],
               ),
-              textAlign: TextAlign.center,
+            ),
+
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContactInfo({
+    required IconData icon,
+    required String text,
+    VoidCallback? onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                text,
+                style: const TextStyle(fontSize: 16),
+              ),
             ),
           ],
         ),
@@ -332,17 +379,13 @@ class _AboutusState extends State<Aboutus> {
     );
   }
 
-  Widget _buildContactInfo(IconData icon, String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 20),
-          const SizedBox(width: 12),
-          Expanded(child: Text(text, style: const TextStyle(fontSize: 16))),
-        ],
-      ),
-    );
+  Future<void> _launchUrl(String url) async {
+    try {
+      if (await canLaunchUrl(Uri.parse(url))) {
+        await launchUrl(Uri.parse(url));
+      }
+    } catch (e) {
+      debugPrint('Could not launch URL: $e');
+    }
   }
 }

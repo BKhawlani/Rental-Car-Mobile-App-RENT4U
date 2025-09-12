@@ -213,25 +213,37 @@ class _MyfavoriteState extends State<Myfavorite> {
                 Text(
                   "Price: ".tr(),
                   style: GoogleFonts.outfit(
-                    fontSize: fontSizeSubtitle - 2,
+                    fontSize: fontSizeSubtitle - 3,
                     color: const Color.fromARGB(255, 36, 14, 144),
                   ),
                 ),
                 Text(
                   "\$${car["price"] ?? '0'} / day",
                   style: GoogleFonts.outfit(
-                    fontSize: fontSizeSubtitle - 2,
+                    fontSize: fontSizeSubtitle - 3,
                     color: const Color.fromARGB(255, 36, 14, 144),
                   ),
                 )
               ],
             ),
+            SizedBox(
+              width: 5,
+            )
           ]),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => Cardetails(
+                        car: cars,
+                        index: int.parse(car["carid"]) - 1,
+                      ), // verimizde sifirdan basladigi icin -1 ekliyoruz
+                    ),
+                  );
+                },
                 icon: const Icon(Icons.arrow_forward_ios),
               ),
             ],

@@ -7,8 +7,12 @@ import 'package:rental_car_project/Drawer_Screens/Privacy.dart';
 import 'package:rental_car_project/Drawer_Screens/aboutUs.dart';
 import 'package:rental_car_project/Drawer_Screens/profileScreen.dart';
 import 'package:country_flags/country_flags.dart';
+
 import 'package:rental_car_project/screen/welcome_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
+import 'package:vibration/vibration.dart';
+import 'dart:async';
 
 class Setting extends StatefulWidget {
   const Setting({super.key});
@@ -18,6 +22,8 @@ class Setting extends StatefulWidget {
 }
 
 class _SettingState extends State<Setting> {
+  bool isButtonEnabled = true;
+
   Map<String, dynamic>? userData;
   final _passwordFormKey = GlobalKey<FormState>();
   bool _showPasswordFields = false;
@@ -36,7 +42,6 @@ class _SettingState extends State<Setting> {
     _currentPasswordController.dispose();
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
-
     super.dispose();
   }
 
@@ -52,7 +57,6 @@ class _SettingState extends State<Setting> {
           .doc(user.uid)
           .delete();
 
-      // احذف الحساب من Firebase Auth
       await user.delete();
 
       return true;
@@ -65,35 +69,81 @@ class _SettingState extends State<Setting> {
   }
 
   void showDeleteDialog(BuildContext context) {
+    int countdown = 5;
+    bool isButtonEnabled = false;
+    Timer? _timer;
+
+    void startCountdown(VoidCallback updateState) {
+      _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+        countdown--;
+        if (countdown == 0) {
+          timer.cancel();
+          isButtonEnabled = true;
+        }
+        updateState();
+      });
+    }
+
+    final rootContext = context;
+
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext alertContext) {
-        return AlertDialog(
-          title: Text("Delete Account".tr()),
-          content: Text("Are you sure you want to delete your account?".tr()),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(alertContext).pop(),
-              child: Text("Cancel".tr(), style: TextStyle(color: Colors.black)),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.of(alertContext).pop();
+        return StatefulBuilder(
+          builder: (context, setState) {
+            if (_timer == null) {
+              startCountdown(() => setState(() {}));
+            }
 
-                final success = await deleteAccount(context);
+            return AlertDialog(
+              title: Text("Delete Account".tr()),
+              content:
+                  Text("Are you sure you want to delete your account?".tr()),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    _timer?.cancel();
+                    Navigator.pop(alertContext);
+                  },
+                  child: Text("Cancel".tr(),
+                      style: TextStyle(color: Colors.black)),
+                ),
+                TextButton(
+                  onPressed: isButtonEnabled
+                      ? () async {
+                          _timer?.cancel();
+                          Navigator.pop(alertContext);
 
-                if (success) {
-                  Future.microtask(() {
-                    Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (_) => const Welcome()),
-                      (route) => false,
-                    );
-                  });
-                }
-              },
-              child: Text("Delete".tr(), style: TextStyle(color: Colors.red)),
-            ),
-          ],
+                          try {
+                            final success = await deleteAccount(rootContext);
+
+                            if (success) {
+                              Navigator.of(rootContext, rootNavigator: true)
+                                  .pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                    builder: (_) => const Welcome()),
+                                (route) => false,
+                              );
+                            }
+                          } catch (e) {
+                            print('Error during account deletion: $e');
+                            ScaffoldMessenger.of(rootContext).showSnackBar(
+                              SnackBar(
+                                  content:
+                                      Text('Failed to delete account'.tr())),
+                            );
+                          }
+                        }
+                      : null,
+                  child: isButtonEnabled
+                      ? Text("Delete".tr(), style: TextStyle(color: Colors.red))
+                      : Text(countdown.toString(),
+                          style: TextStyle(color: Colors.red)),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -322,7 +372,7 @@ class _SettingState extends State<Setting> {
             // Navigate to language settings
           }),
           _buildHeader('Support'.tr()),
-          _buildListTile('About'.tr(), Icons.info, () {
+          _buildListTile('About Us'.tr(), Icons.info, () {
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => Aboutus(
@@ -374,7 +424,11 @@ class _SettingState extends State<Setting> {
                     borderRadius: BorderRadius.circular(screenWidth * 0.05),
                   ),
                 ),
-                onPressed: () {
+                onPressed: () async {
+                  if (await Vibration.hasVibrator() ?? false) {
+                    Vibration.vibrate(duration: 200);
+                  }
+
                   showDeleteDialog(context);
                 },
                 child: Text(
@@ -414,13 +468,23 @@ class _SettingState extends State<Setting> {
     IconData icon,
     VoidCallback onTap,
   ) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    double verticalSpacing = screenHeight * 0.025;
+    double ButtonField = screenHeight * 0.06;
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
-        leading: Icon(icon, color: Colors.black),
-        title: Text(title, style: const TextStyle(color: Colors.black)),
+        leading: Icon(
+          icon,
+          color: Colors.black,
+          size: screenHeight * 0.03,
+        ),
+        title: Text(title,
+            style: GoogleFonts.outfit(
+                color: Colors.black, fontSize: screenWidth * 0.04)),
         trailing: const Icon(Icons.chevron_right, color: Colors.grey),
         onTap: onTap,
       ),
@@ -471,7 +535,43 @@ class _SettingState extends State<Setting> {
                   Navigator.pop(context);
                   _changeLanguage(context, "ar", "YE");
                 },
-              )
+              ),
+              ListTile(
+                title: Text("Deutsch".tr()),
+                leading: CountryFlag.fromCountryCode(
+                  'DE',
+                  width: 30,
+                  height: 25,
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _changeLanguage(context, "de", "GER");
+                },
+              ),
+              ListTile(
+                title: Text("Spanish".tr()),
+                leading: CountryFlag.fromCountryCode(
+                  'ES',
+                  width: 30,
+                  height: 25,
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _changeLanguage(context, "es", "ES");
+                },
+              ),
+              ListTile(
+                title: Text("French".tr()),
+                leading: CountryFlag.fromCountryCode(
+                  'FR',
+                  width: 30,
+                  height: 25,
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _changeLanguage(context, "fr", "FR");
+                },
+              ),
             ],
           ),
         );

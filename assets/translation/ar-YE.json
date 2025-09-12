@@ -200,7 +200,16 @@
   "Are you sure you want to delete your account?": "هل أنت متأكد أنك تريد حذف حسابك؟",
   "Delete": "حذف",
   "Delete My Accout": "حذف حسابي",
-    "Devloped by: Eng: Bashar Alkhawlani":"تطوير م/بشار يوسف الخولاني"
+    "Devloped by: Eng: Bashar Alkhawlani":"تطوير م/بشار يوسف الخولاني",
+    "day":"يوم",
+    "Days":"أيام",
+     "The Dates you insert are wrong":"التواريخ المدخله خاطئة",
+      "Drop Off Date":"تاريخ التسليم",
+        "Deutsch":"الألمانية",
+  "Spanish":"الإسبانية",
+  "French":"الفرنسية"
+
+    
 }
 
 

@@ -43,6 +43,27 @@ class _MycarsState extends State<Mycars> {
     }
   }
 
+  Future<void> deletebookCar(String id) async {
+    final url = Uri.parse(
+        'https://680c930b2ea307e081d45573.mockapi.io/rent4u/api/cars/$id');
+
+    try {
+      final response = await http.patch(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'available': true}),
+      );
+
+      if (response.statusCode == 200) {
+        print(' Update successful: ${response.body}');
+      } else {
+        print(' Update Failed ${response.statusCode}');
+      }
+    } catch (e) {
+      print('  no connection : $e');
+    }
+  }
+
   List<Map<String, dynamic>> userBookings = [];
   bool isLoading = true;
   Map<String, dynamic>? userData;
@@ -122,7 +143,7 @@ class _MycarsState extends State<Mycars> {
       setState(() {
         userBookings.removeWhere((booking) => booking['id'] == bookingId);
       });
-
+      deletebookCar(bookingId);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Booking deleted successfully')),
       );
@@ -306,27 +327,27 @@ class _MycarsState extends State<Mycars> {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10.0, right: 10.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () {
-                      _showDeleteDialog(car['id']);
-                    },
-                  ),
-                ],
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.only(bottom: 10.0, right: 10.0),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.end,
+            //     children: [
+            //       IconButton(
+            //         icon: const Icon(Icons.delete, color: Colors.red),
+            //         onPressed: () {
+            //           _showDeleteDialog(car['id'], car['carid']);
+            //         },
+            //       ),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       ),
     );
   }
 
-  void _showDeleteDialog(String bookingId) {
+  void _showDeleteDialog(String bookingId, String carId) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -336,8 +357,8 @@ class _MycarsState extends State<Mycars> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text(
-                "Cancel",
+              child: Text(
+                "Cancel".tr(),
                 style: TextStyle(color: Colors.black),
               ),
             ),
@@ -345,6 +366,7 @@ class _MycarsState extends State<Mycars> {
               onPressed: () {
                 Navigator.of(context).pop();
                 _deleteBooking(bookingId);
+                deletebookCar(carId);
               },
               child: Text("Delete".tr(), style: TextStyle(color: Colors.red)),
             ),
@@ -413,9 +435,13 @@ class _MycarsState extends State<Mycars> {
         ),
         Row(
           children: [
-            Text(car['PickUpDate']?.toString() ?? 'N/A'),
+            Text(
+              car['PickUpDate']?.toString() ?? 'N/A',
+              style: TextStyle(fontSize: fontSize - 3),
+            ),
             const SizedBox(width: 25),
-            Text(car['DropOffDate']?.toString() ?? 'N/A'),
+            Text(car['DropOffDate']?.toString() ?? 'N/A',
+                style: TextStyle(fontSize: fontSize - 3)),
           ],
         ),
       ],

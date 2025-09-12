@@ -44,6 +44,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  bool obsecureText = true;
   bool rememberMe = false;
   bool passerror = false;
   bool emailerror = false;
@@ -125,9 +126,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   children: [
                     SizedBox(
-                      height: emailerror || userfound
-                          ? ButtonField * 1.4
-                          : ButtonField,
+                      height: emailerror ? ButtonField * 1.4 : ButtonField,
                       child: TextFormField(
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -157,7 +156,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     SizedBox(height: verticalSpacing / 1.5),
                     SizedBox(
-                      height: emailerror || userfound || passerror
+                      height: emailerror || passerror
                           ? ButtonField * 1.4
                           : ButtonField,
                       child: TextFormField(
@@ -172,13 +171,27 @@ class _LoginPageState extends State<LoginPage> {
                           return null;
                         },
                         controller: password,
-                        obscureText: true,
+                        obscureText: obsecureText,
                         decoration: InputDecoration(
                           labelText: "Password".tr(),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(
                               screenWidth * 0.07,
                             ),
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              obsecureText
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: Colors.grey,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                obsecureText =
+                                    !obsecureText; // تبديل الحالة عند الضغط
+                              });
+                            },
                           ),
                         ),
                       ),
@@ -389,7 +402,6 @@ class _LoginPageState extends State<LoginPage> {
                   },
                   child: Container(
                     alignment: Alignment.center,
-                    width: double.infinity,
                     height: ButtonField,
                     decoration: BoxDecoration(
                       color: const Color.fromARGB(255, 36, 14, 144),
@@ -407,7 +419,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-              SizedBox(height: verticalSpacing * 2.5),
+              SizedBox(height: verticalSpacing),
               Row(
                 children: [
                   Expanded(
@@ -430,80 +442,65 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ],
               ),
-              SizedBox(height: verticalSpacing * 2),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    height: screenWidth * 0.12,
-                    width: screenWidth * 0.12,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                      border: Border.all(color: Colors.grey, width: 1),
-                    ),
-                    child: ClipOval(
-                      child: MaterialButton(
-                        onPressed: () {},
-                        padding: const EdgeInsets.all(8),
-                        child: Image.asset(
-                          "assets/images/apple.png",
-                          fit: BoxFit.contain,
+              SizedBox(height: verticalSpacing),
+              Container(
+                alignment: Alignment.center,
+                margin: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.2,
+                ),
+                width: screenWidth,
+                height: ButtonField,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.grey, width: 1),
+                  borderRadius: BorderRadius.circular(30), // Rounded corners
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(30),
+                    onTap: () async {
+                      try {
+                        await signInWithGoogle();
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (context) => MainNavigator(),
+                          ),
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text("Sign in failed: ${e.toString()}")),
+                        );
+                      }
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Image.asset(
+                            "assets/images/google.png",
+                            width: 24,
+                            height: 24,
+                            fit: BoxFit.contain,
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 8),
+                        Text(
+                          "Sign in with Google".tr(),
+                          style: GoogleFonts.outfit(
+                            fontSize: screenWidth * 0.035,
+                            color: Colors.black,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
                   ),
-                  SizedBox(width: screenWidth * 0.13),
-                  Container(
-                    height: screenWidth * 0.12,
-                    width: screenWidth * 0.12,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                      border: Border.all(color: Colors.grey, width: 1),
-                    ),
-                    child: ClipOval(
-                      child: MaterialButton(
-                        onPressed: () {},
-                        padding: const EdgeInsets.all(8),
-                        child: Image.asset(
-                          "assets/images/facebook.png",
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: screenWidth * 0.13),
-                  Container(
-                    height: screenWidth * 0.12,
-                    width: screenWidth * 0.12,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                      border: Border.all(color: Colors.grey, width: 1),
-                    ),
-                    child: ClipOval(
-                      child: MaterialButton(
-                        onPressed: () {
-                          signInWithGoogle().then((value) {
-                            Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                builder: (context) => MainNavigator(),
-                              ),
-                            );
-                          });
-                        },
-                        padding: const EdgeInsets.all(8),
-                        child: Image.asset(
-                          "assets/images/google.png",
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-              SizedBox(height: verticalSpacing * 2),
+              SizedBox(height: verticalSpacing),
               Center(
                 child: TextButton(
                   onPressed: () {
@@ -513,7 +510,7 @@ class _LoginPageState extends State<LoginPage> {
                   },
                   child: Text(
                     "Don't have an account? Sign up".tr(),
-                    style: GoogleFonts.outfit(fontSize: screenWidth * 0.035),
+                    style: GoogleFonts.outfit(fontSize: screenWidth * 0.040),
                   ),
                 ),
               ),

@@ -53,7 +53,9 @@ class _SedancarState extends State<Sedancar> {
     fetchCars().then((carList) {
       setState(() {
         cars = carList;
-        sedanCars = cars.where((car) => car.category == "Sedan").toList();
+        sedanCars = cars
+            .where((car) => car.category == "Sedan" && car.isAvailable)
+            .toList();
         isloading = false;
         isfetched = true;
       });
@@ -95,7 +97,7 @@ class _SedancarState extends State<Sedancar> {
                         Center(
                           child: Container(
                             alignment: Alignment.topLeft,
-                            width: screenWidth * 0.6,
+                            width: screenWidth * 0.5,
                             margin: EdgeInsets.only(right: 10),
                             decoration: BoxDecoration(
                               color: Colors.white,
@@ -159,7 +161,7 @@ class _SedancarState extends State<Sedancar> {
                               "There is not An Available Car in this Category, We're Sorry!!"
                                   .tr(),
                               style: GoogleFonts.outfit(
-                                fontSize: 20,
+                                fontSize: screenWidth * 0.04,
                                 color: Colors.black,
                               ),
                             ),
@@ -201,7 +203,9 @@ class _SedancarState extends State<Sedancar> {
                                   ),
                                   SizedBox(height: verticalSpacing),
                                   Text(
-                                    sedanCars[i].model,
+                                    sedanCars[i].brand +
+                                        " " +
+                                        sedanCars[i].model,
                                     style: GoogleFonts.poppins(
                                       fontSize: fontSizeSubtitle,
                                       fontWeight: FontWeight.w500,
@@ -209,15 +213,29 @@ class _SedancarState extends State<Sedancar> {
                                     ),
                                   ),
                                   SizedBox(height: verticalSpacing),
-                                  Text(
-                                    "\$${cars[i].price} / day",
-                                    style: GoogleFonts.outfit(
-                                      fontSize: fontSizeSubtitle,
-                                      color: Color.fromARGB(255, 36, 14, 144),
-                                    ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "\$${sedanCars[i].price}/",
+                                        style: GoogleFonts.outfit(
+                                          fontSize: fontSizeSubtitle,
+                                          color:
+                                              Color.fromARGB(255, 36, 14, 144),
+                                        ),
+                                      ),
+                                      Text(
+                                        "day".tr(),
+                                        style: GoogleFonts.outfit(
+                                          fontSize: fontSizeSubtitle,
+                                          color:
+                                              Color.fromARGB(255, 36, 14, 144),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                   Container(
-                                    margin: EdgeInsets.only(left: 250),
+                                    margin: EdgeInsets.only(left: 200),
                                     decoration: BoxDecoration(
                                       color: Color.fromARGB(255, 36, 14, 144),
                                       borderRadius: BorderRadius.circular(10),
@@ -236,7 +254,10 @@ class _SedancarState extends State<Sedancar> {
                     ],
                   )
                 : isloading
-                    ? Center(child: CircularProgressIndicator())
+                    ? Container(
+                        margin: EdgeInsets.only(top: 100),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
                     : Center(child: Text("Error 404")),
           ],
         ),

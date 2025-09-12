@@ -11,7 +11,6 @@ import 'package:rental_car_project/Drawer_Screens/Setting.dart';
 import 'package:rental_car_project/Drawer_Screens/aboutUs.dart';
 import 'package:rental_car_project/Drawer_Screens/myFavorite.dart';
 import 'package:rental_car_project/Drawer_Screens/mycars.dart';
-import 'package:rental_car_project/screen/CarDetails.dart';
 import 'package:rental_car_project/screen/booking.dart';
 import 'package:rental_car_project/screen/home_page.dart';
 import 'package:rental_car_project/Drawer_Screens/profileScreen.dart';
@@ -109,97 +108,92 @@ class _MainNavigatorState extends State<MainNavigator> {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     double fontSizeTitle = screenWidth * 0.06;
-    double ButtonField = screenHeight * 0.06;
     return Scaffold(
       appBar: AppBar(
-        title: _currentIndex == 0
-            ? Text(
-                "Car Booking".tr(),
-                style: GoogleFonts.outfit(
-                  fontSize: fontSizeTitle,
-                  color: Colors.white,
-                ),
-              )
-            : _currentIndex == 2
-                ? Text(
-                    "My profile".tr(),
-                    style: GoogleFonts.outfit(
-                      fontSize: fontSizeTitle,
-                      color: Colors.white,
-                    ),
-                  )
-                : _currentIndex == 3
-                    ? Text(
-                        "My Cars".tr(),
-                        style: GoogleFonts.outfit(
-                          fontSize: fontSizeTitle,
-                          color: Colors.white,
-                        ),
-                      )
-                    : _currentIndex == 4
-                        ? Text(
-                            "My Favorites".tr(),
-                            style: GoogleFonts.outfit(
-                              fontSize: fontSizeTitle,
-                              color: Colors.white,
-                            ),
-                          )
-                        : _currentIndex == 5
-                            ? Text(
-                                "Settings".tr(),
-                                style: GoogleFonts.outfit(
-                                  fontSize: fontSizeTitle,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : _currentIndex == 6
-                                ? Text(
-                                    "About Us".tr(),
-                                    style: GoogleFonts.outfit(
-                                      fontSize: fontSizeTitle,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : null,
-        centerTitle: true,
-        backgroundColor: Color.fromARGB(255, 36, 14, 144),
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.menu, color: Colors.white, size: 30),
-          onPressed: () async {
-            scaffoldkey.currentState?.openDrawer();
-            try {
-              getUserData().then((data) {
-                if (mounted) {
-                  setState(() {
-                    userData = data;
-                  });
-                }
-              });
-            } catch (e) {
-              debugPrint('Error loading user data: $e');
-            }
-          },
-        ),
-        actions: [
-          if (_currentIndex != 3) ...[
-            IconButton(
-              icon:
-                  Icon(Icons.car_rental_rounded, color: Colors.white, size: 30),
-              onPressed: () async {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => Mycars(
-                      fromhome: true,
-                    ),
+          title: _currentIndex == 0
+              ? Text(
+                  "Car Booking".tr(),
+                  style: GoogleFonts.outfit(
+                    fontSize: fontSizeTitle,
+                    color: Colors.white,
                   ),
-                );
-              },
-            ),
-          ]
-        ],
-      ),
+                )
+              : _currentIndex == 2
+                  ? Text(
+                      "My profile".tr(),
+                      style: GoogleFonts.outfit(
+                        fontSize: fontSizeTitle,
+                        color: Colors.white,
+                      ),
+                    )
+                  : _currentIndex == 3
+                      ? Text(
+                          "My Cars".tr(),
+                          style: GoogleFonts.outfit(
+                            fontSize: fontSizeTitle,
+                            color: Colors.white,
+                          ),
+                        )
+                      : _currentIndex == 4
+                          ? Text(
+                              "My Favorites".tr(),
+                              style: GoogleFonts.outfit(
+                                fontSize: fontSizeTitle,
+                                color: Colors.white,
+                              ),
+                            )
+                          : _currentIndex == 5
+                              ? Text(
+                                  "Settings".tr(),
+                                  style: GoogleFonts.outfit(
+                                    fontSize: fontSizeTitle,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : _currentIndex == 6
+                                  ? Text(
+                                      "About Us".tr(),
+                                      style: GoogleFonts.outfit(
+                                        fontSize: fontSizeTitle,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : null,
+          centerTitle: true,
+          backgroundColor: Color.fromARGB(255, 36, 14, 144),
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(Icons.menu, color: Colors.white, size: 30),
+            onPressed: () async {
+              scaffoldkey.currentState?.openDrawer();
+              try {
+                getUserData().then((data) {
+                  if (mounted) {
+                    setState(() {
+                      userData = data;
+                    });
+                  }
+                });
+              } catch (e) {
+                debugPrint('Error loading user data: $e');
+              }
+            },
+          ),
+          actions: [
+            if (_currentIndex != 3) ...[
+              IconButton(
+                icon: Icon(Icons.car_rental_rounded,
+                    color: Colors.white, size: 30),
+                onPressed: () {
+                  setState(() {
+                    _currentIndex = 3;
+                  });
+                },
+              ),
+            ],
+          ]),
       drawer: Drawer(
+        backgroundColor: Colors.white,
         child: ListView(
           children: [
             DrawerHeader(
@@ -217,7 +211,7 @@ class _MainNavigatorState extends State<MainNavigator> {
                       'Rent4U',
                       style: GoogleFonts.outfit(
                         color: Colors.white,
-                        fontSize: 26,
+                        fontSize: fontSizeTitle + 1,
                       ),
                     ),
                   ),
@@ -227,12 +221,12 @@ class _MainNavigatorState extends State<MainNavigator> {
                         child: Image.network(
                           userData?['photo'] ??
                               "https://i.pinimg.com/736x/98/1d/6b/981d6b2e0ccb5e968a0618c8d47671da.jpg",
-                          width: 50,
-                          height: 50,
+                          width: screenWidth * 0.17,
+                          height: screenHeight * 0.08,
                           fit: BoxFit.cover,
                         ),
                       ),
-                      SizedBox(width: 20),
+                      SizedBox(width: screenWidth * 0.03),
                       Container(
                         margin: EdgeInsets.only(top: 10),
                         child: Text(
@@ -245,88 +239,107 @@ class _MainNavigatorState extends State<MainNavigator> {
                 ],
               ),
             ),
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text('Home'.tr(), style: GoogleFonts.outfit(fontSize: 18)),
-              onTap: () {
-                Navigator.pop(context);
-                setState(() {
-                  _currentIndex = 1;
-                });
-              },
-              trailing: Icon(Icons.arrow_forward_ios),
-            ),
-            ListTile(
-              leading: Icon(Icons.car_rental),
-              title: Text(
-                'My Cars'.tr(),
-                style: TextStyle(fontSize: 18, color: Colors.black),
+            SizedBox(
+              height: screenHeight * 0.07,
+              child: ListTile(
+                leading: Icon(Icons.home),
+                title:
+                    Text('Home'.tr(), style: GoogleFonts.outfit(fontSize: 18)),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    _currentIndex = 1;
+                  });
+                },
+                trailing: Icon(Icons.arrow_forward_ios),
               ),
-              onTap: () {
-                Navigator.pop(context);
-                setState(() {
-                  _currentIndex = 3;
-                });
-              },
-              trailing: Icon(Icons.arrow_forward_ios),
             ),
-            ListTile(
-              leading: Icon(Icons.favorite),
-              title: Text(
-                'Favorites'.tr(),
-                style: TextStyle(fontSize: 18, color: Colors.black),
+            SizedBox(
+              height: screenHeight * 0.07,
+              child: ListTile(
+                leading: Icon(Icons.car_rental),
+                title: Text(
+                  'My Cars'.tr(),
+                  style: TextStyle(fontSize: 18, color: Colors.black),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    _currentIndex = 3;
+                  });
+                },
+                trailing: Icon(Icons.arrow_forward_ios),
               ),
-              onTap: () {
-                Navigator.pop(context);
-                setState(() {
-                  _currentIndex = 4;
-                });
-              },
-              trailing: Icon(Icons.arrow_forward_ios),
             ),
-            ListTile(
-              leading: Icon(Icons.account_circle),
-              title: Text(
-                'Profile'.tr(),
-                style: TextStyle(fontSize: 18, color: Colors.black),
+            SizedBox(
+              height: screenHeight * 0.07,
+              child: ListTile(
+                leading: Icon(Icons.favorite),
+                title: Text(
+                  'Favorites'.tr(),
+                  style: TextStyle(fontSize: 18, color: Colors.black),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    _currentIndex = 4;
+                  });
+                },
+                trailing: Icon(Icons.arrow_forward_ios),
               ),
-              onTap: () {
-                Navigator.pop(context);
-                setState(() {
-                  _currentIndex = 2;
-                });
-              },
-              trailing: Icon(Icons.arrow_forward_ios),
             ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text(
-                'Settings'.tr(),
-                style: TextStyle(fontSize: 18, color: Colors.black),
+            SizedBox(
+              height: screenHeight * 0.07,
+              child: ListTile(
+                leading: Icon(Icons.account_circle),
+                title: Text(
+                  'Profile'.tr(),
+                  style: TextStyle(fontSize: 18, color: Colors.black),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    _currentIndex = 2;
+                  });
+                },
+                trailing: Icon(Icons.arrow_forward_ios),
               ),
-              onTap: () {
-                Navigator.pop(context);
-                setState(() {
-                  _currentIndex = 5;
-                });
-              },
-              trailing: Icon(Icons.arrow_forward_ios),
             ),
-            ListTile(
-              leading: Icon(Icons.people_alt_sharp),
-              title: Text(
-                'About Us'.tr(),
-                style: TextStyle(fontSize: 18, color: Colors.black),
+            SizedBox(
+              height: screenHeight * 0.07,
+              child: ListTile(
+                leading: Icon(Icons.settings),
+                title: Text(
+                  'Settings'.tr(),
+                  style: TextStyle(fontSize: 18, color: Colors.black),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    _currentIndex = 5;
+                  });
+                },
+                trailing: Icon(Icons.arrow_forward_ios),
               ),
-              onTap: () {
-                Navigator.pop(context);
-                setState(() {
-                  _currentIndex = 6;
-                });
-              },
-              trailing: Icon(Icons.arrow_forward_ios),
             ),
-            SizedBox(height: 170),
+            SizedBox(
+              height: screenHeight * 0.07,
+              child: ListTile(
+                leading: Icon(Icons.people_alt_sharp),
+                title: Text(
+                  'About Us'.tr(),
+                  style: TextStyle(fontSize: 18, color: Colors.black),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    _currentIndex = 6;
+                  });
+                },
+                trailing: Icon(Icons.arrow_forward_ios),
+              ),
+            ),
+            SizedBox(height: screenHeight * 0.18),
             Align(
               alignment: Alignment.center,
               child: Container(
@@ -367,10 +380,11 @@ class _MainNavigatorState extends State<MainNavigator> {
       bottomNavigationBar: CurvedNavigationBar(
         backgroundColor: Colors.white,
         color: Color.fromARGB(255, 36, 14, 144),
-        items: const [
-          Icon(Icons.calendar_month, size: 30, color: Colors.white),
-          Icon(Icons.home, size: 30, color: Colors.white),
-          Icon(Icons.person, size: 30, color: Colors.white),
+        items: [
+          Icon(Icons.calendar_month,
+              size: screenHeight * 0.04, color: Colors.white),
+          Icon(Icons.home, size: screenHeight * 0.04, color: Colors.white),
+          Icon(Icons.person, size: screenHeight * 0.04, color: Colors.white),
         ],
         index: _currentIndex <= 2 ? _currentIndex : 1,
         onTap: (index) {
@@ -378,10 +392,9 @@ class _MainNavigatorState extends State<MainNavigator> {
             if (index <= 2) {
               _currentIndex = index;
             }
-            // تحديث الصفحة الحالية
           });
         },
-        height: 60, // ارتفاع شريط التنقل
+        height: screenHeight * 0.07, // ارتفاع شريط التنقل
         animationDuration: Duration(milliseconds: 300), // مدة الحركة
       ),
     );

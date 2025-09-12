@@ -54,7 +54,9 @@ class _LuxuryCarState extends State<LuxuryCar> {
       setState(() {
         isfetched = true;
         cars = carList;
-        LuxuryCars = cars.where((car) => car.category == "Luxury").toList();
+        LuxuryCars = cars
+            .where((car) => car.category == "Luxury" && car.isAvailable)
+            .toList();
         isloading = false;
       });
     }).catchError((error) {
@@ -95,7 +97,7 @@ class _LuxuryCarState extends State<LuxuryCar> {
                         Center(
                           child: Container(
                             alignment: Alignment.topLeft,
-                            width: screenWidth * 0.6,
+                            width: screenWidth * 0.5,
                             margin: EdgeInsets.only(right: 10),
                             decoration: BoxDecoration(
                               color: Colors.white,
@@ -159,7 +161,7 @@ class _LuxuryCarState extends State<LuxuryCar> {
                               "There is not An Available Car in this Category, We're Sorry!!"
                                   .tr(),
                               style: GoogleFonts.outfit(
-                                fontSize: 20,
+                                fontSize: screenWidth * 0.04,
                                 color: Colors.black,
                               ),
                             ),
@@ -201,7 +203,9 @@ class _LuxuryCarState extends State<LuxuryCar> {
                                   ),
                                   SizedBox(height: verticalSpacing),
                                   Text(
-                                    LuxuryCars[i].model,
+                                    LuxuryCars[i].brand +
+                                        " " +
+                                        LuxuryCars[i].model,
                                     style: GoogleFonts.poppins(
                                       fontSize: fontSizeSubtitle,
                                       fontWeight: FontWeight.w500,
@@ -209,15 +213,29 @@ class _LuxuryCarState extends State<LuxuryCar> {
                                     ),
                                   ),
                                   SizedBox(height: verticalSpacing),
-                                  Text(
-                                    "\$${cars[i].price} / day",
-                                    style: GoogleFonts.outfit(
-                                      fontSize: fontSizeSubtitle,
-                                      color: Color.fromARGB(255, 36, 14, 144),
-                                    ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "\$${LuxuryCars[i].price}/",
+                                        style: GoogleFonts.outfit(
+                                          fontSize: fontSizeSubtitle,
+                                          color:
+                                              Color.fromARGB(255, 36, 14, 144),
+                                        ),
+                                      ),
+                                      Text(
+                                        "day".tr(),
+                                        style: GoogleFonts.outfit(
+                                          fontSize: fontSizeSubtitle,
+                                          color:
+                                              Color.fromARGB(255, 36, 14, 144),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                   Container(
-                                    margin: EdgeInsets.only(left: 250),
+                                    margin: EdgeInsets.only(left: 200),
                                     decoration: BoxDecoration(
                                       color: Color.fromARGB(255, 36, 14, 144),
                                       borderRadius: BorderRadius.circular(10),
@@ -236,7 +254,10 @@ class _LuxuryCarState extends State<LuxuryCar> {
                     ],
                   )
                 : isloading
-                    ? Center(child: CircularProgressIndicator())
+                    ? Container(
+                        margin: EdgeInsets.only(top: 100),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
                     : Center(child: Text("Error 404")),
           ],
         ),

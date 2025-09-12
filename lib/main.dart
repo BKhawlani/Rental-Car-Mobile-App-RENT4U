@@ -10,7 +10,6 @@ import 'package:easy_localization/easy_localization.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   try {
     await Future.wait([
       Firebase.initializeApp(),
@@ -26,10 +25,13 @@ void main() async {
         Locale('tr', 'TR'),
         Locale('ar', 'YE'),
         Locale('en', 'US'),
+        Locale('fr', 'FR'),
+        Locale('es', 'ES'),
+        Locale('de', 'GER'),
       ],
       path: 'assets/translation',
-      fallbackLocale: const Locale('ar', 'YE'),
-      startLocale: const Locale('tr', 'TR'),
+      fallbackLocale: const Locale('tr', 'TR'), //yedek dil
+      startLocale: const Locale('en', 'US'), //ana dil
       child: const MyApp(),
     ),
   );
@@ -69,7 +71,6 @@ class _MyappState extends State<MyApp> {
       initialRoute: '/',
       routes: {
         '/home': (context) => HomePage(),
-        // باقي الصفحات
       },
       localizationsDelegates: [
         ...context.localizationDelegates,

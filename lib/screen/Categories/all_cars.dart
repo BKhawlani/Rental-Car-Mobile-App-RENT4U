@@ -25,12 +25,11 @@ class _AllCarsState extends State<AllCars> {
         List<dynamic> data = json.decode(response.body);
         return data.map((car) => Car.fromJson(car)).toList();
       } else {
-        // إذا السيرفر رد بكود خطأ (مثلا 404، 500...)
         if (kDebugMode) {
           print('Server error: ${response.statusCode}');
           fetched = false;
         }
-        return []; // مصفوفة فاضية
+        return [];
       }
     } catch (e) {
       if (kDebugMode) {
@@ -51,7 +50,11 @@ class _AllCarsState extends State<AllCars> {
 
     fetchCars().then((carList) {
       setState(() {
-        cars = carList;
+        cars = carList.where((car) => car.isAvailable).toList();
+        for (var car in PapularModel) {
+          papularCars.addAll(
+              cars.where((c) => c.model == car && c.isAvailable).toList());
+        }
         isloading = false;
         fetched = true; // Set fetched to true after data is loaded
       });
@@ -66,6 +69,22 @@ class _AllCarsState extends State<AllCars> {
   bool fetched = false;
   bool isSearching = false;
   List<Car> filteredCars = [];
+  List<Car> papularCars = [];
+  List<String> PapularModel = [
+    "GLC",
+    "i4",
+    "Model Y",
+    "110",
+    "Z4",
+    "E-Class",
+    "Kona",
+    "A6",
+    "A4",
+    "ES 300h",
+    "Land Cruiser",
+    "5 Series",
+    "Camry",
+  ];
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -84,7 +103,7 @@ class _AllCarsState extends State<AllCars> {
             Text(
               "Papular Cars".tr(),
               style: GoogleFonts.outfit(
-                fontSize: fontSizeTitle,
+                fontSize: fontSizeTitle - 2,
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
               ),
@@ -92,12 +111,13 @@ class _AllCarsState extends State<AllCars> {
             SizedBox(height: verticalSpacing / 2),
             //Arabalar List View
             SizedBox(
-              height: screenHeight * 0.3,
+              height: screenHeight * 0.31,
               child: fetched
                   ? cars.isNotEmpty
                       ? ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          itemCount: cars.isEmpty ? 1 : cars.length,
+                          itemCount:
+                              papularCars.isEmpty ? 1 : papularCars.length,
                           itemBuilder: (BuildContext context, int index) {
                             return Column(
                               children: [
@@ -106,7 +126,7 @@ class _AllCarsState extends State<AllCars> {
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (context) => Cardetails(
-                                          car: cars,
+                                          car: papularCars,
                                           index: index,
                                         ),
                                       ),
@@ -137,7 +157,7 @@ class _AllCarsState extends State<AllCars> {
                                             top: Radius.circular(20),
                                           ),
                                           child: Image.network(
-                                            cars[index].image,
+                                            papularCars[index].image,
                                             fit: BoxFit.cover,
                                             width: double.infinity,
                                             height: screenHeight * 0.2,
@@ -148,7 +168,7 @@ class _AllCarsState extends State<AllCars> {
                                             paddingHorizontal / 2,
                                           ),
                                           child: Text(
-                                            "${cars[index].brand} ${cars[index].model} ",
+                                            "${papularCars[index].brand} ${papularCars[index].model} ",
                                             style: GoogleFonts.outfit(
                                               fontSize: fontSizeSubtitle,
                                               fontWeight: FontWeight.bold,
@@ -158,12 +178,11 @@ class _AllCarsState extends State<AllCars> {
                                         Row(
                                           children: [
                                             Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal:
-                                                    paddingHorizontal / 2,
+                                              padding: EdgeInsets.only(
+                                                left: paddingHorizontal / 2,
                                               ),
                                               child: Text(
-                                                "\$${cars[index].price} / day",
+                                                "\$${papularCars[index].price}/ ",
                                                 style: GoogleFonts.outfit(
                                                   fontSize: fontSizeSubtitle,
                                                   color: Color.fromARGB(
@@ -175,7 +194,21 @@ class _AllCarsState extends State<AllCars> {
                                                 ),
                                               ),
                                             ),
-                                            SizedBox(width: 75),
+                                            SizedBox(
+                                              child: Text(
+                                                "day".tr(),
+                                                style: GoogleFonts.outfit(
+                                                  fontSize: fontSizeSubtitle,
+                                                  color: Color.fromARGB(
+                                                    255,
+                                                    36,
+                                                    14,
+                                                    144,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(width: screenWidth * 0.3),
                                             Container(
                                               decoration: BoxDecoration(
                                                 color: Color.fromARGB(
@@ -265,7 +298,7 @@ class _AllCarsState extends State<AllCars> {
                 : Text(
                     "All Cars".tr(),
                     style: GoogleFonts.outfit(
-                      fontSize: fontSizeTitle,
+                      fontSize: fontSizeTitle - 2,
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
@@ -310,12 +343,23 @@ class _AllCarsState extends State<AllCars> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    subtitle: Text(
-                      "\$${cars[i].price} / day",
-                      style: GoogleFonts.outfit(
-                        fontSize: fontSizeSubtitle - 2,
-                        color: Color.fromARGB(255, 36, 14, 144),
-                      ),
+                    subtitle: Row(
+                      children: [
+                        Text(
+                          "\$${cars[i].price} / ",
+                          style: GoogleFonts.outfit(
+                            fontSize: fontSizeSubtitle - 2,
+                            color: Color.fromARGB(255, 36, 14, 144),
+                          ),
+                        ),
+                        Text(
+                          "day".tr(),
+                          style: GoogleFonts.outfit(
+                            fontSize: fontSizeSubtitle - 2,
+                            color: Color.fromARGB(255, 36, 14, 144),
+                          ),
+                        ),
+                      ],
                     ),
                     trailing: Icon(Icons.arrow_forward_ios),
                   ),

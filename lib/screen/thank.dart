@@ -12,6 +12,14 @@ class ThankYouPage extends StatefulWidget {
 class _ThankYouPageState extends State<ThankYouPage> {
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    double paddingHorizontal = screenWidth * 0.05;
+    double verticalSpacing = screenHeight * 0.025;
+    double ButtonField = screenHeight * 0.06;
+    double fontSizeTitle = screenWidth * 0.08;
+    double fontSizeSubtitle = screenWidth * 0.04;
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -25,7 +33,7 @@ class _ThankYouPageState extends State<ThankYouPage> {
               padding: const EdgeInsets.symmetric(horizontal: 40),
               child: Image.asset(
                 "assets/images/shopping.png",
-                height: size.height * 0.3,
+                height: screenHeight * 0.25,
                 fit: BoxFit.contain,
               ),
             ),
@@ -36,7 +44,7 @@ class _ThankYouPageState extends State<ThankYouPage> {
             Text(
               'Thank You!'.tr(),
               style: GoogleFonts.poppins(
-                fontSize: 32,
+                fontSize: fontSizeTitle - 4,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
@@ -52,15 +60,14 @@ class _ThankYouPageState extends State<ThankYouPage> {
                     .tr(),
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
-                  fontSize: 18,
+                  fontSize: fontSizeSubtitle,
                   color: Colors.grey[700],
                   height: 1.5,
                 ),
               ),
             ),
 
-            const SizedBox(height: 30),
-
+            SizedBox(height: screenHeight * 0.07),
             // Order Details Card
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -88,7 +95,7 @@ class _ThankYouPageState extends State<ThankYouPage> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
               child: SizedBox(
                 width: double.infinity,
-                height: 55,
+                height: screenHeight * 0.07,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF240E90),

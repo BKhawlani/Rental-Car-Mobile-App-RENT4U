@@ -54,7 +54,9 @@ class _ElectriccarState extends State<Electriccar> {
     fetchCars().then((carList) {
       setState(() {
         cars = carList;
-        Electriccars = cars.where((car) => car.category == "Electric").toList();
+        Electriccars = cars
+            .where((car) => car.category == "Electric" && car.isAvailable)
+            .toList();
         isloading = false;
         isfetched = true;
       });
@@ -97,7 +99,7 @@ class _ElectriccarState extends State<Electriccar> {
                         Center(
                           child: Container(
                             alignment: Alignment.topLeft,
-                            width: screenWidth * 0.6,
+                            width: screenWidth * 0.5,
                             margin: EdgeInsets.only(right: 10),
                             decoration: BoxDecoration(
                               color: Colors.white,
@@ -161,7 +163,7 @@ class _ElectriccarState extends State<Electriccar> {
                               "There is not An Available Car in this Category, We're Sorry!!"
                                   .tr(),
                               style: GoogleFonts.outfit(
-                                fontSize: 20,
+                                fontSize: screenWidth * 0.04,
                                 color: Colors.black,
                               ),
                             ),
@@ -169,77 +171,95 @@ class _ElectriccarState extends State<Electriccar> {
                         ),
                       ] else ...[
                         for (int i = 0; i < Electriccars.length; i++)
-                          for (int i = 0; i < Electriccars.length; i++)
-                            MaterialButton(
-                              onPressed: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => Cardetails(
-                                        car: Electriccars, index: i)));
-                              },
-                              child: Container(
-                                margin: EdgeInsets.only(
-                                  right: paddingHorizontal,
-                                  bottom: verticalSpacing,
-                                ),
-                                padding: EdgeInsets.all(paddingHorizontal),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.2),
-                                      spreadRadius: 2,
-                                      blurRadius: 5,
-                                      offset: Offset(0, 3),
+                          MaterialButton(
+                            onPressed: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) =>
+                                      Cardetails(car: Electriccars, index: i)));
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(
+                                right: paddingHorizontal,
+                                bottom: verticalSpacing,
+                              ),
+                              padding: EdgeInsets.all(paddingHorizontal),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.2),
+                                    spreadRadius: 2,
+                                    blurRadius: 5,
+                                    offset: Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                children: [
+                                  Image.network(
+                                    Electriccars[i].image,
+                                    width: screenWidth * 0.9,
+                                    height: screenHeight * 0.25,
+                                    fit: BoxFit.cover,
+                                  ),
+                                  SizedBox(height: verticalSpacing),
+                                  Text(
+                                    Electriccars[i].brand +
+                                        " " +
+                                        Electriccars[i].model,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: fontSizeSubtitle,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.black,
                                     ),
-                                  ],
-                                ),
-                                child: Column(
-                                  children: [
-                                    Image.network(
-                                      Electriccars[i].image,
-                                      width: screenWidth * 0.9,
-                                      height: screenHeight * 0.25,
-                                      fit: BoxFit.cover,
-                                    ),
-                                    SizedBox(height: verticalSpacing),
-                                    Text(
-                                      Electriccars[i].model,
-                                      style: GoogleFonts.poppins(
-                                        fontSize: fontSizeSubtitle,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black,
+                                  ),
+                                  SizedBox(height: verticalSpacing),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "\$${Electriccars[i].price}/",
+                                        style: GoogleFonts.outfit(
+                                          fontSize: fontSizeSubtitle,
+                                          color:
+                                              Color.fromARGB(255, 36, 14, 144),
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(height: verticalSpacing),
-                                    Text(
-                                      "\$${cars[i].price} / day",
-                                      style: GoogleFonts.outfit(
-                                        fontSize: fontSizeSubtitle,
-                                        color: Color.fromARGB(255, 36, 14, 144),
+                                      Text(
+                                        "day".tr(),
+                                        style: GoogleFonts.outfit(
+                                          fontSize: fontSizeSubtitle,
+                                          color:
+                                              Color.fromARGB(255, 36, 14, 144),
+                                        ),
                                       ),
+                                    ],
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.only(left: 200),
+                                    decoration: BoxDecoration(
+                                      color: Color.fromARGB(255, 36, 14, 144),
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
-                                    Container(
-                                      margin: EdgeInsets.only(left: 250),
-                                      decoration: BoxDecoration(
-                                        color: Color.fromARGB(255, 36, 14, 144),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Icon(
-                                        Icons.arrow_forward,
-                                        color: Colors.white,
-                                        size: 25,
-                                      ),
+                                    child: Icon(
+                                      Icons.arrow_forward,
+                                      color: Colors.white,
+                                      size: 25,
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
+                          ),
                       ],
                     ],
                   )
                 : isloading
-                    ? Center(child: CircularProgressIndicator())
+                    ? Container(
+                        margin: EdgeInsets.only(top: 100),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
                     : Center(child: Text("Error 404")),
           ],
         ),

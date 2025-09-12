@@ -17,26 +17,8 @@ class Signup extends StatefulWidget {
 }
 
 class _SignupState extends State<Signup> {
-  Future<UserCredential> signInWithGoogle() async {
-    // Trigger the authentication flow
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
-    // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth =
-        await googleUser?.authentication;
-
-    // Create a new credential
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.accessToken,
-      idToken: googleAuth?.idToken,
-    );
-
-    // Once signed in, return the UserCredential
-    return await FirebaseAuth.instance.signInWithCredential(credential);
-  }
-
-  CollectionReference users = FirebaseFirestore.instance.collection('users');
-
+  bool _obscureText = true;
+  bool _obscureText2 = true;
   // Once signed in, return the UserCredential
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -68,23 +50,9 @@ class _SignupState extends State<Signup> {
   GlobalKey<FormState> frmkey = GlobalKey<FormState>();
   PhoneNumber initialNumber = PhoneNumber(
     isoCode: 'TR',
-  ); // يتم تعيينه مرة واحدة عند التهيئة
+  );
   PhoneNumber phoneNumber = PhoneNumber(isoCode: 'TR');
   bool inputerror = false;
-  Future<void> addUser() {
-    // Call the user's CollectionReference to add a new user
-    return users
-        .add({
-          'full_name': name.text,
-          'email': email.text,
-          'password': password.text,
-          'phoneNum': phoneNum.text,
-          'dateOfbirth': dateOfbirth.text,
-          'gender': genderValue,
-        })
-        .then((value) => print("User Added"))
-        .catchError((error) => print("Failed to add user: $error"));
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -125,12 +93,12 @@ class _SignupState extends State<Signup> {
             children: [
               Text(
                 "Sign up".tr(),
-                style: GoogleFonts.outfit(fontSize: fontSizeTitle),
+                style: GoogleFonts.outfit(fontSize: fontSizeTitle - 3),
               ),
               SizedBox(height: verticalSpacing / 2),
               Text(
                 "Please enter your information below".tr(),
-                style: GoogleFonts.outfit(fontSize: fontSizeSubtitle),
+                style: GoogleFonts.outfit(fontSize: fontSizeSubtitle - 2),
               ),
               SizedBox(height: verticalSpacing),
               Form(
@@ -242,13 +210,26 @@ class _SignupState extends State<Signup> {
                           return null;
                         },
                         controller: password,
-                        obscureText: true,
+                        obscureText: _obscureText,
                         decoration: InputDecoration(
                           labelText: "Password".tr(),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(
-                              screenWidth * 0.07,
+                            borderRadius:
+                                BorderRadius.circular(screenWidth * 0.07),
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureText
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: Colors.grey,
                             ),
+                            onPressed: () {
+                              setState(() {
+                                _obscureText =
+                                    !_obscureText; // تبديل الحالة عند الضغط
+                              });
+                            },
                           ),
                         ),
                       ),
@@ -274,13 +255,27 @@ class _SignupState extends State<Signup> {
                         },
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         controller: rePassword,
-                        obscureText: true,
+                        obscureText: _obscureText2,
                         decoration: InputDecoration(
                           labelText: "Repeat Password".tr(),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(
                               screenWidth * 0.07,
                             ),
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureText2
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: Colors.grey,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscureText2 =
+                                    !_obscureText2; // تبديل الحالة عند الضغط
+                              });
+                            },
                           ),
                         ),
                       ),
@@ -289,8 +284,8 @@ class _SignupState extends State<Signup> {
                     Container(
                       width: screenWidth,
                       height: inputerror
-                          ? textFieldHeight * 1.4
-                          : textFieldHeight * 1.2,
+                          ? textFieldHeight * 1.5
+                          : textFieldHeight * 1.5,
                       child: InternationalPhoneNumberInput(
                         onInputChanged: (PhoneNumber number) {
                           setState(() {
@@ -339,17 +334,24 @@ class _SignupState extends State<Signup> {
                     ),
                     SizedBox(height: 17),
                     Container(
-                      height: textFieldHeight + 10,
+                      height: inputerror
+                          ? textFieldHeight + 25
+                          : textFieldHeight + 12,
                       child: DropdownButtonFormField<String>(
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              setState(() => inputerror = true);
+                            });
+                            return 'Please select a gender'.tr();
+                          }
+                        },
                         menuMaxHeight: 150,
                         value: genderValue,
-                        hint: Text(
-                          "Gender".tr(),
-                          style: GoogleFonts.poppins(
-                            color: Colors.black,
-                            fontSize: 16,
-                          ),
-                        ),
+                        hint: Text("Gender".tr(),
+                            style: GoogleFonts.poppins(
+                                color: Colors.black,
+                                fontSize: screenWidth * 0.03)),
                         isExpanded: true,
                         alignment: Alignment.bottomCenter,
                         dropdownColor: Colors.white,
@@ -370,7 +372,11 @@ class _SignupState extends State<Signup> {
                         ) {
                           return DropdownMenuItem<String>(
                             value: gender,
-                            child: Text(gender.tr()),
+                            child: Text(gender.tr(),
+                                style: GoogleFonts.poppins(
+                                  color: Colors.black,
+                                  fontSize: screenWidth * 0.03,
+                                )),
                           );
                         }).toList(),
                       ),
@@ -575,132 +581,10 @@ class _SignupState extends State<Signup> {
                   ],
                 ),
               ),
-              SizedBox(height: verticalSpacing * 2),
-              // Row(
-              //   children: [
-              //     Expanded(
-              //       child: Divider(
-              //         color: Colors.grey,
-              //         thickness: 1,
-              //         endIndent: 10,
-              //       ),
-              //     ),
-              //     Text(
-              //       "Or Continue With",
-              //       style: GoogleFonts.outfit(fontSize: fontSizeSubtitle),
-              //     ),
-              //     Expanded(
-              //       child: Divider(
-              //         color: Colors.grey,
-              //         thickness: 1,
-              //         indent: 10,
-              //       ),
-              //     ),
-              //   ],
-              // ),
-              SizedBox(height: verticalSpacing),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   children: [
-              //     Container(
-              //       height: screenWidth * 0.12,
-              //       width: screenWidth * 0.12,
-              //       decoration: BoxDecoration(
-              //         shape: BoxShape.circle,
-              //         color: Colors.white,
-              //         border: Border.all(color: Colors.grey, width: 1),
-              //       ),
-              //       child: ClipOval(
-              //         child: MaterialButton(
-              //           onPressed: () {},
-              //           padding: const EdgeInsets.all(8),
-              //           child: Image.asset(
-              //             "assets/images/apple.png",
-              //             fit: BoxFit.contain,
-              //           ),
-              //         ),
-              //       ),
-              //     ),
-              //     SizedBox(width: screenWidth * 0.13),
-              //     Container(
-              //       height: screenWidth * 0.12,
-              //       width: screenWidth * 0.12,
-              //       decoration: BoxDecoration(
-              //         shape: BoxShape.circle,
-              //         color: Colors.white,
-              //         border: Border.all(color: Colors.grey, width: 1),
-              //       ),
-              //       child: ClipOval(
-              //         child: MaterialButton(
-              //           onPressed: () {},
-              //           padding: const EdgeInsets.all(8),
-              //           child: Image.asset(
-              //             "assets/images/facebook.png",
-              //             fit: BoxFit.contain,
-              //           ),
-              //         ),
-              //       ),
-              //     ),
-              //     SizedBox(width: screenWidth * 0.13),
-              //     Container(
-              //       height: screenWidth * 0.12,
-              //       width: screenWidth * 0.12,
-              //       decoration: BoxDecoration(
-              //         shape: BoxShape.circle,
-              //         color: Colors.white,
-              //         border: Border.all(color: Colors.grey, width: 1),
-              //       ),
-              //       child: ClipOval(
-              //         child: MaterialButton(
-              //           onPressed: () {
-              //             signInWithGoogle().then((value) {
-              //               Navigator.of(context).pushReplacement(
-              //                 MaterialPageRoute(
-              //                   builder: (context) => LoginPage(),
-              //                 ),
-              //               );
-              //             });
-              //           },
-              //           padding: const EdgeInsets.all(8),
-              //           child: Image.asset(
-              //             "assets/images/google.png",
-              //             fit: BoxFit.contain,
-              //           ),
-              //         ),
-              //       ),
-              //     ),
-              //   ],
-              // ),
-              SizedBox(height: verticalSpacing),
             ],
           ),
         ),
       ),
     );
   }
-
-  // Widget _buildSocialButton(
-  //   String assetPath,
-  //   double screenWidth,
-  //   void Function() onPressed,
-  // ) {
-  //   return Container(
-  //     height: screenWidth * 0.12,
-  //     width: screenWidth * 0.12,
-  //     decoration: BoxDecoration(
-  //       shape: BoxShape.circle,
-  //       color: Colors.white,
-  //       border: Border.all(color: Colors.grey, width: 1),
-  //     ),
-  //     child: ClipOval(
-  //       child: MaterialButton(
-  //         onPressed: () {
-  //           Function() onPressed;
-  //         },
-  //         padding: const EdgeInsets.all(8),
-  //         child: Image.asset(assetPath, fit: BoxFit.contain),
-  //       ),
-  //     ),
-  //   );
-  // }
 }

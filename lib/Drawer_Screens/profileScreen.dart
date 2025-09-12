@@ -229,7 +229,7 @@ class _ProfileState extends State<Profile> {
       _confirmPasswordController.clear();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password updated successfully')),
+        SnackBar(content: Text('Password updated successfully'.tr())),
       );
 
       setState(() {
@@ -288,7 +288,7 @@ class _ProfileState extends State<Profile> {
           child: Column(
             children: [
               Container(
-                height: 250,
+                height: screenHeight * 0.34,
                 width: double.infinity,
                 decoration: const BoxDecoration(
                   color: Color.fromARGB(255, 36, 14, 144),
@@ -299,7 +299,7 @@ class _ProfileState extends State<Profile> {
                 ),
                 child: Column(
                   children: [
-                    const SizedBox(height: 80),
+                    SizedBox(height: screenHeight * 0.13),
                     GestureDetector(
                       onTap: _isEditable ? _pickImage : null,
                       child: Stack(
@@ -308,15 +308,15 @@ class _ProfileState extends State<Profile> {
                             child: _imageFile != null
                                 ? Image.file(
                                     _imageFile!,
-                                    width: 100,
-                                    height: 100,
+                                    width: screenWidth * 0.23,
+                                    height: screenHeight * 0.13,
                                     fit: BoxFit.cover,
                                   )
                                 : Image.network(
                                     userData?['photo'] ??
                                         "https://i.pinimg.com/736x/98/1d/6b/981d6b2e0ccb5e968a0618c8d47671da.jpg",
-                                    width: 100,
-                                    height: 100,
+                                    width: screenWidth * 0.28,
+                                    height: screenHeight * 0.12,
                                     fit: BoxFit.cover,
                                   ),
                           ),
@@ -335,7 +335,7 @@ class _ProfileState extends State<Profile> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: screenHeight * 0.01),
                     _isEditable
                         ? Container(
                             width: screenWidth * 0.6,
@@ -374,7 +374,7 @@ class _ProfileState extends State<Profile> {
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: screenHeight * 0.01),
 
               // Email Field
               _buildEditableField(
@@ -383,20 +383,9 @@ class _ProfileState extends State<Profile> {
                 controller: _emailController,
                 isEditable: false,
                 keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  if (!RegExp(
-                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                  ).hasMatch(value)) {
-                    return 'Please enter a valid email';
-                  }
-                  return null;
-                },
               ),
 
-              const SizedBox(height: 10),
+              SizedBox(height: screenHeight * 0.01),
 
               // Phone Field
               _buildEditableField(
@@ -405,6 +394,13 @@ class _ProfileState extends State<Profile> {
                 controller: _phoneController,
                 isEditable: _isEditable,
                 keyboardType: TextInputType.phone,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your email';
+                  }
+
+                  return null;
+                },
                 onChanged: (value) {
                   setState(() {
                     _hasChanges = true;
@@ -412,7 +408,7 @@ class _ProfileState extends State<Profile> {
                 },
               ),
 
-              const SizedBox(height: 10),
+              SizedBox(height: screenHeight * 0.01),
 
               _buildEditableField(
                 context: context,
@@ -436,6 +432,13 @@ class _ProfileState extends State<Profile> {
                         }
                       }
                     : null,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your email';
+                  }
+
+                  return null;
+                },
                 onChanged: (value) {
                   setState(() {
                     _hasChanges = true;
@@ -443,7 +446,7 @@ class _ProfileState extends State<Profile> {
                 },
               ),
 
-              const SizedBox(height: 10),
+              SizedBox(height: screenHeight * 0.01),
 
               // Gender Field
               _buildEditableField(
@@ -518,64 +521,74 @@ class _ProfileState extends State<Profile> {
                     key: _passwordFormKey,
                     child: Column(
                       children: [
-                        TextFormField(
-                          controller: _currentPasswordController,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            labelText: 'Current Password'.tr(),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
+                        SizedBox(
+                          height: screenHeight * 0.07,
+                          child: TextFormField(
+                            controller: _currentPasswordController,
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              labelText: 'Current Password'.tr(),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
                             ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your current password'
+                                    .tr();
+                              }
+                              if (value != userData!['password']) {
+                                return 'Current password is incorrect'.tr();
+                              }
+                              return null;
+                            },
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your current password'.tr();
-                            }
-                            if (value != userData!['password']) {
-                              return 'Current password is incorrect'.tr();
-                            }
-                            return null;
-                          },
                         ),
-                        const SizedBox(height: 10),
-                        TextFormField(
-                          controller: _newPasswordController,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            labelText: 'New Password'.tr(),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
+                        SizedBox(height: screenHeight * 0.01),
+                        SizedBox(
+                          height: screenHeight * 0.07,
+                          child: TextFormField(
+                            controller: _newPasswordController,
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              labelText: 'New Password'.tr(),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
                             ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter a new password'.tr();
+                              }
+                              if (value.length < 6) {
+                                return 'Password must be at least 6 characters'
+                                    .tr();
+                              }
+                              return null;
+                            },
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a new password'.tr();
-                            }
-                            if (value.length < 6) {
-                              return 'Password must be at least 6 characters'
-                                  .tr();
-                            }
-                            return null;
-                          },
                         ),
-                        const SizedBox(height: 10),
-                        TextFormField(
-                          controller: _confirmPasswordController,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            labelText: 'Confirm New Password'.tr(),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
+                        SizedBox(height: screenHeight * 0.01),
+                        SizedBox(
+                          height: screenHeight * 0.07,
+                          child: TextFormField(
+                            controller: _confirmPasswordController,
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              labelText: 'Confirm New Password'.tr(),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
                             ),
+                            validator: (value) {
+                              if (value != _newPasswordController.text) {
+                                return 'Passwords do not match'.tr();
+                              }
+                              return null;
+                            },
                           ),
-                          validator: (value) {
-                            if (value != _newPasswordController.text) {
-                              return 'Passwords do not match'.tr();
-                            }
-                            return null;
-                          },
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: screenHeight * 0.01),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
@@ -602,10 +615,13 @@ class _ProfileState extends State<Profile> {
                   ),
                 ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: screenHeight * 0.01),
 
               if (!_isEditable)
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                  ),
                   onPressed: () {
                     setState(() {
                       _isEditable = true;
@@ -671,21 +687,26 @@ class _ProfileState extends State<Profile> {
     ValueChanged<String>? onChanged,
     String? Function(String?)? validator,
   }) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     return Container(
       width: MediaQuery.of(context).size.width * 0.85,
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: TextFormField(
-        controller: controller,
-        readOnly: !isEditable || onTap != null,
-        keyboardType: keyboardType,
-        decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(25)),
-          suffixIcon: isEditable ? const Icon(Icons.edit) : null,
+      child: SizedBox(
+        height: screenHeight * 0.06,
+        child: TextFormField(
+          controller: controller,
+          readOnly: !isEditable || onTap != null,
+          keyboardType: keyboardType,
+          decoration: InputDecoration(
+            labelText: label,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(25)),
+            suffixIcon: isEditable ? const Icon(Icons.edit) : null,
+          ),
+          onTap: onTap,
+          onChanged: onChanged,
+          validator: validator,
         ),
-        onTap: onTap,
-        onChanged: onChanged,
-        validator: validator,
       ),
     );
   }
